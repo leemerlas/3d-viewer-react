@@ -20,12 +20,8 @@ const Bottle = () => {
     const siliconTexture = useLoader(TextureLoader, 'red_Silicon_mat_BaseColor.png')
 
     fbx.children.forEach((mesh, i) => {
-        console.log(mesh)
         if (mesh.name.includes("Eva_Foam")) {
             mesh.material = new THREE.MeshPhongMaterial({ map: evaFoamTexture, normalMap: normalEvaFoamTexture });
-            console.log(mesh.material.map);
-            // mesh.material.map.center.x = 50;
-            // mesh.material.map.center.y = 50;
         } else if (mesh.name.includes("bottle")) {
             mesh.children.forEach((mat, i) => {
                 mat.material = new THREE.MeshPhongMaterial({ map: bodyTexture });
