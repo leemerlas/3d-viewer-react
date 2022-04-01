@@ -19,6 +19,10 @@ const Bottle = () => {
     const capTexture = useLoader(TextureLoader, 'red_cap_mat_BaseColor.png')
     const siliconTexture = useLoader(TextureLoader, 'red_Silicon_mat_BaseColor.png')
 
+    function reloadLogo () {
+        
+    }
+
     fbx.children.forEach((mesh, i) => {
         if (mesh.name.includes("Eva_Foam")) {
             mesh.material = new THREE.MeshPhongMaterial({ map: evaFoamTexture, normalMap: normalEvaFoamTexture });
@@ -39,7 +43,7 @@ const Bottle = () => {
     });
 
 
-    return <primitive object={fbx} scale={0.2} position={[0, -1.25, 0]}/>
+    return <primitive object={fbx} scale={0.35} position={[0, -2.75, 0]}/>
 }
 
 export default Bottle

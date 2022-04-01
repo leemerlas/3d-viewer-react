@@ -11,14 +11,16 @@ export async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) 
     const scaleY = image.naturalHeight / image.height
     const pixelRatio = window.devicePixelRatio
 
-    canvas.width = Math.floor(crop.width * scaleX * pixelRatio)
-    canvas.height = Math.floor(crop.height * scaleY * pixelRatio)
+    // canvas.width = Math.floor(crop.width * scaleX * pixelRatio)
+    // canvas.height = Math.floor(crop.height * scaleY * pixelRatio)
+    canvas.width = scaleX * image.width 
+    canvas.height = scaleY * image.height 
 
-    ctx.scale(pixelRatio, pixelRatio)
+    // ctx.scale(pixelRatio, pixelRatio)
     ctx.imageSmoothingQuality = 'high'
 
-    const cropX = crop.x * scaleX
-    const cropY = crop.y * scaleY
+    const cropX = scaleX
+    const cropY = scaleY
 
     const rotateRads = rotate * TO_RADIANS
     const centerX = image.naturalWidth / 2
@@ -28,7 +30,7 @@ export async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) 
     ctx.translate(-cropX, -cropY)
     ctx.translate(centerX, centerY)
     ctx.rotate(rotateRads)
-    ctx.scale(scale, scale)
+    // ctx.scale(scale, scale)
     ctx.translate(-centerX, -centerY)
     ctx.drawImage(
         image,
@@ -41,5 +43,8 @@ export async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) 
         image.naturalWidth,
         image.naturalHeight,
     )
-    ctx.restore()
+    // ctx.restore()
+
+    
+    return canvas.toDataURL('image/png')
 }
