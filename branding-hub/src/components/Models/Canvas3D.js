@@ -10,20 +10,27 @@ import Logo from "./Logo"
 
 
 const Canvas3D = (props) => {
+    let positionArgs = props.positionArgs
 
-    console.log(props.image);
-    
+    // if (props.positionArgs[1] >= -1.25 && props.positionArgs[1] <= 0.25) {
+    //     positionArgs = props.positionArgs
+    // }
+
+    // useEffect(() => {
+    //     positionArgs[1] = (positionArgs[1] + posY)
+    // })
+
     return (
         <Canvas style={{ backgroundColor: "white", height: "92.5vh" }}>
             <Suspense fallback={null}>
             <Bottle />
             <EvaFoam position={[0, -1.26, 0]}/>
-            <Logo />
+            <Logo image={props.image} deltaPosition={props.deltaPosition} position={positionArgs} rotationArgs={props.rotationArgs}/>
             <OrbitControls />
             {/* <Environment preset="sunset" background /> */}
             {/* <CameraController /> */}
-            <ambientLight intensity={0.1} />
-            <spotLight position={[10, 10, 10]} intensity={0.2} penumbra={1} />
+            <ambientLight intensity={0.175} />
+            <spotLight position={[5, 5, 10]} intensity={0.2} penumbra={1} />
             {/* <pointLight position={[-10, -20, -30]} /> */}
             </Suspense>
         </Canvas>

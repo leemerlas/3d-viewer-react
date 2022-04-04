@@ -25,7 +25,7 @@ const Bottle = () => {
 
     fbx.children.forEach((mesh, i) => {
         if (mesh.name.includes("Eva_Foam")) {
-            mesh.material = new THREE.MeshPhongMaterial({ map: evaFoamTexture, normalMap: normalEvaFoamTexture });
+            mesh.material = new THREE.MeshPhongMaterial({ map: evaFoamTexture });
         } else if (mesh.name.includes("bottle")) {
             mesh.children.forEach((mat, i) => {
                 mat.material = new THREE.MeshPhongMaterial({ map: bodyTexture });

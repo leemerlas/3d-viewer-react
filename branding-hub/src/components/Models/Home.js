@@ -16,6 +16,7 @@ import RedoIcon from '@mui/icons-material/Redo'
 import UndoIcon from '@mui/icons-material/Undo'
 import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap'
 import MoveUpRoundedIcon from '@mui/icons-material/MoveUpRounded'
+import DragMove from "../DragMove"
 
 import Canvas3D from "./Canvas3D"
 import { useDebounceEffect } from "./UseDebounceEffect"
@@ -35,20 +36,19 @@ function centerAspectCrop(mediaWidth, mediaHeight) {
             mediaWidth,
             mediaHeight,
         ),
-        mediaWidth,
-        mediaHeight,
+        384,
+        576,
     )
 }
 
 const Home = () => {
-
     const [color, setColor] = useState(0)
     const [imgSrc, setImgSrc] = useState('')
     const [imgName, setImgName] = useState('UPLOAD')
     const previewCanvasRef = useRef(null)
     const imgRef = useRef(null)
     const [crop, setCrop] = useState()
-    const [completedCrop, setCompletedCrop] = useState()
+    const [completedCrop, setCompletedCrop] = useState(null)
     const [scale, setScale] = useState(1)
     const [rotate, setRotate] = useState(0)
     const [aspect, setAspect] = useState(null)
@@ -57,6 +57,8 @@ const Home = () => {
     const [imgWidth, setImgWidth] = useState(0)
     const [showScale, setShowScale] = useState(false)
     const [showRotate, setShowRotate] = useState(false)
+    const [showMove, setShowMove] = useState(false)
+    const [showImg, setShowImg] = useState(false)
     const [imgUrl, setImgUrl] = useState("")
 
     const onColorChange = (event) => {
@@ -69,6 +71,7 @@ const Home = () => {
           const reader = new FileReader()
           reader.addEventListener('load', () =>
             setImgSrc(reader.result.toString() || ''),
+            setShowImg(true)
           )
           reader.readAsDataURL(event.target.files[0])
           setImgName(event.target.files[0].name)
@@ -91,6 +94,10 @@ const Home = () => {
             previewCanvasRef.current
           ) {
             // We use canvasPreview as it's much faster than imgPreview.
+
+            completedCrop.width = 384
+            completedCrop.height = 576
+
             let dataUrl = canvasPreview(
                 imgRef.current,
                 previewCanvasRef.current,
@@ -99,7 +106,7 @@ const Home = () => {
                 rotate,
             )
 
-            dataUrl.then((data) => setImgUrl(data))
+            dataUrl.then((data) => {setImgUrl(data)})
           }
         },
         100,
@@ -120,8 +127,10 @@ const Home = () => {
         if(showScale) {
             setShowScale(false)
         } else {
+            setShowImg(true)
             setShowRotate(false)
             setShowScale(true)
+            setShowMove(false)
         }
     }
 
@@ -129,8 +138,22 @@ const Home = () => {
         if(showRotate) {
             setShowRotate(false)
         } else {
+            setShowImg(true)
             setShowScale(false)
             setShowRotate(true)
+            setShowMove(false)
+        }
+    }
+
+    const moveImage = () => {
+        if(showMove) {
+            setShowImg(true)
+            setShowMove(false)
+        } else {
+            setShowImg(false)
+            setShowScale(false)
+            setShowRotate(false)
+            setShowMove(true)
         }
     }
 
@@ -152,6 +175,63 @@ const Home = () => {
     const loadToModel = () => {
         console.log(imgUrl);
     }
+
+    //for dragging
+
+    const [activeDrags, setActiveDrags] = useState(0)
+    const [deltaPosition, setDeltaPosition] = useState({
+        x: 0, 
+        y: 0
+    })
+
+
+    const [positionArgs, setPositionArgs] = useState([0,0,0])
+    const [rotationArgs, setRotationArgs] = useState(Math.PI)
+    const [oldPosY, setOldPosY] = useState(0)
+    const [draggable, setDraggable] = useState(true)
+
+    const handleLogoMove = (e) => {
+        let offsets = document.getElementById('drag-logo').getBoundingClientRect();
+        console.log(offsets.top);
+        console.log(offsets.left);
+    }
+    
+    const handleDrag = (e, ui) => {
+        const {x, y} = deltaPosition;
+        setDeltaPosition({
+            x: x + ui.deltaX,
+            y: y + ui.deltaY
+        })
+
+        // if (deltaPosition.y === 164) {
+        //     setDraggable(false)
+        // }
+
+        let posY = 0;
+
+        setOldPosY(deltaPosition.y)
+
+        if (deltaPosition.y <= 164 && deltaPosition.y >= 0 ) {
+            if (oldPosY >= deltaPosition.y && oldPosY <= 164) {
+                posY = 0.025
+                setPositionArgs([ 0, positionArgs[1]+posY, 0 ])
+
+            } else if (oldPosY <= deltaPosition.y && oldPosY >= 0){
+                posY = -0.025
+                setPositionArgs([ 0, positionArgs[1]+posY, 0 ])
+            }
+        }
+    };
+    
+    const onStart = () => {
+        setActiveDrags(activeDrags + 1)
+      };
+    
+    const onStop = () => {
+        setActiveDrags(activeDrags - 1)
+    };
+
+    const dragHandlers = {onStart: onStart, onStop: onStop};
 
     return (
         <Box sx={{ flexGrow: 1, paddingTop: 2 }}>
@@ -235,7 +315,7 @@ const Home = () => {
                                             </FormControl>
                                     </Card>
                                 </Grid>
-                                {imgSrc && <Grid item xs={1} sx={{ marginLeft: 2 }}>
+                                {false && <Grid item xs={1} sx={{ marginLeft: 2 }}>
                                     <Tooltip title="Load Image to Model" arrow>
                                         <IconButton variant="outlined" sx={{ color: "#ffbf4f", borderColor: "#FFCF7D", border: 1 }} onClick={loadToModel}>
                                             <MoveUpRoundedIcon />
@@ -273,7 +353,7 @@ const Home = () => {
                                         </IconButton>
                                         <Typography sx={{ paddingBottom: 1, paddingTop: 0 }}>REDO</Typography>
                                         {/* move button */}
-                                        <IconButton sx={{ border: 0 }}>
+                                        <IconButton sx={{ border: 0 }} onClick={moveImage} style={ showMove ? { backgroundColor: 'lightgray' } : { }}>
                                             <SvgIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                             sx={{ color: "black", fontSize: "2em" }}>
                                                 <polyline points="5 9 2 12 5 15"></polyline>
@@ -302,52 +382,70 @@ const Home = () => {
                                         <Typography sx={{ paddingBottom: 1, paddingTop: 0 }}>SCALE</Typography>
                                     </Card>
                                 </Grid>
-                                <Grid item xs={11} sx={{ minHeight: 630, margin: 'auto' }} align="center">
+                                {<Grid item xs={5} sx={{ display: 'none' }}>
+                                    <div>
+                                        <canvas
+                                            ref={previewCanvasRef}
+                                            style={{
+                                                border: '1px solid black',
+                                                objectFit: 'contain',
+                                                width: 384,
+                                                height: 576,
+                                            }}
+                                        >
+                                            
+                                        </canvas>
+                                    </div>
+                                </Grid>}
+                                <Grid item xs={6} sx={{ minHeight: 630, margin: 'auto' }} align="center">
                                     <Typography sx={{ fontSize: "1.5em", fontWeight: 200 }}>Branding Dimensions: 3" x 2"</Typography>
                                     <Typography sx={{ fontSize: "0.95em", fontWeight: 200, marginTop: -1 }}>Silk Screen - Centered on Front</Typography>
                                     <Grid item xs={4} sx={{ padding: 2 }}>
                                         {showScale && <TextField size="small" id="outlined-basic" label="Scale" variant="outlined" type={'number'} inputProps={{ step: "0.1", defaultValue: scale }} onChange={(e) => {setScale(e.target.value)}} />}
                                         {showRotate && <TextField size="small" id="outlined-basic" label="Rotate" variant="outlined" type={'number'} inputProps={{ step: "1", defaultValue: rotate }} onChange={(e) => {setRotate(e.target.value)}} />}
                                     </Grid>
-                                    {imgSrc && 
-                                    <Grid style={{ backgroundColor: "#ba0c2f", width: '50%', height: '60vh', marginTop: 10 }}>
+                                    {imgSrc && showImg && 
+                                    <Grid style={{ backgroundColor: "#ba0c2f", width: '384px', height: '576px', marginTop: 10 }}>
                                         <ReactCrop
                                             crop={crop}
-                                            style={{ width: '100%', height: '100%' }}
+                                            disabled
+                                            style={{ height: '576px', width: '384px' }}
                                             onChange={(_, percentCrop) => {setCrop(percentCrop); console.log(crop);}}
                                             onComplete={(c) => setCompletedCrop(c)}
                                             // aspect={aspect}
                                         >
                                             <img
                                                 ref={imgRef}
-                                                alt="Crop me"
+                                                alt="Logo Here"
                                                 src={imgSrc}
-                                                style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: "50vh", maxWidth: 350}}
+                                                style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, marginTop: 96 }}
                                                 onLoad={onImageLoad}
                                             />
                                         </ReactCrop>
                                     </Grid>}
+                                    {showMove && <div style={{ padding: 0, position: 'relative' }}>
+                                            <div style={{ backgroundColor: "#ba0c2f", width: '384px', height: '576px' }}>
+                                                <div style={{ paddingTop: 15, cursor: 'grab' }} >
+                                                    <img
+                                                        id='drag-logo'
+                                                        alt="Move Me"
+                                                        src={imgSrc}
+                                                        style={{ transform: `scale(${scale}) rotate(${rotate}deg)`, maxHeight: "50vh", maxWidth: 350}}
+                                                        // onLoad={onImageLoad}
+                                                    />
+                                                </div>
+                                            </div>
+                                            
+                                    </div>}
                                 </Grid>
-                                {<Grid item xs={5} sx={{ display: 'none' }}>
-                                    <div>
-                                        <canvas
-                                            ref={previewCanvasRef}
-                                            style={{
-                                            border: '1px solid black',
-                                            objectFit: 'contain',
-                                            width: imgWidth,
-                                            height: imgHeight,
-                                            }}
-                                        />
-                                    </div>
-                                </Grid>}
+                                
                             </Grid>
                         </CardContent>
                     </Card>
                 </Grid>
                 <Grid item xs={4}>
                     <div id="canvas-area" style={{ height: "95vh" }}>
-                        <Canvas3D image={imgUrl}/>
+                        <Canvas3D image={imgUrl} deltaPosition={deltaPosition} positionArgs={positionArgs} rotationArgs={rotationArgs}/>
                     </div>
                 </Grid>
             </Grid>

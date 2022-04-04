@@ -6,13 +6,26 @@ import logoTexture from "../../assets/tesla-logo-nobg.png"
 const Logo = (props) => {
     const mesh = useRef()
 
-    const texture = useMemo(() => new THREE.TextureLoader().load(logoTexture), [])
+    // let deltaPosition = props.deltaPosition
+    // console.log(deltaPosition);
+
+    // let posY;
+
+    // if (deltaPosition.y > 0) {
+    //     posY = 0.2
+    // } else {
+    //     posY = -0.2
+    // }
+
+    let rotation = props.rotationArgs
+
+    const texture = new THREE.ImageUtils.loadTexture(props.image)
     texture.repeat = new THREE.Vector2(4,1)
     texture.center = new THREE.Vector2(0.5,0.5)
 
     useEffect(() => {
-        mesh.current.rotation.y = Math.PI ;
-        // mesh.current.rotation.x = Math.PI / 2 ;
+        // mesh.current.position.y += posY
+        mesh.current.rotation.y = rotation ;
     }, [])
 
     return (
