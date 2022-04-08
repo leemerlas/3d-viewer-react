@@ -30,7 +30,7 @@ const EvaFoam = (props) => {
         scale={[zoom, zoom, zoom]}
         onClick={(e) => setActive(!active)}
             >
-            <circleBufferGeometry args={[0.55, 380]} />
+            <circleBufferGeometry args={[0.7, 380]} />
             <meshPhongMaterial attach="material" transparent side={THREE.DoubleSide}>
                 <primitive attach="map" object={texture} />
             </meshPhongMaterial>

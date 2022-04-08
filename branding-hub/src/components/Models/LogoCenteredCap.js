@@ -1,16 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const Logo = (props) => {
+const LogoCenteredCap = (props) => {
     const mesh = useRef()
     const texture = new THREE.ImageUtils.loadTexture(props.image)
-    // texture.repeat = new THREE.Vector2(0.8, 0.95)
+    texture.repeat = new THREE.Vector2(1, 0.75)
     texture.center = new THREE.Vector2(0.5,0.5)
-    // texture.rotation = 1.57
 
     useEffect(() => {
-        // mesh.current.rotation.y =  - Math.PI / 2;
-        // mesh.current.rotation.z =  -Math.PI / 2;
+        mesh.current.rotation.x = -Math.PI / 2;
     }, [])
 
     return (
@@ -18,7 +16,8 @@ const Logo = (props) => {
         {...props}
         ref={mesh}
         >
-            <cylinderBufferGeometry attach="geometry" args={[0.965, 0.965, 2.25, 250, 250, true, -1, 2]} />
+            {/* <cylinderBufferGeometry attach="geometry" args={[0.965, 0.965, 2.25, 250, 250, true, -4.15, 2]} /> */}
+            <circleBufferGeometry args={[0.7, 100]} />
             <meshPhongMaterial attach="material" transparent side={THREE.FrontSide} polygonOffsetUnits={5}>
                 <primitive attach="map" object={texture}  />
             </meshPhongMaterial>
@@ -26,4 +25,4 @@ const Logo = (props) => {
      );
 }
 
-export default Logo
+export default LogoCenteredCap
