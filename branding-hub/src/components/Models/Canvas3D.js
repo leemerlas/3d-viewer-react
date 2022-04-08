@@ -24,7 +24,7 @@ const Canvas3D = (props) => {
             <Logo image={props.image} position={[0, 0, 0]}/>
             <LogoCenteredBack image={props.image} position={[0, 0, 0]}/>
             <LogoCenteredCap image={props.image} position={[0, 3.185, 0]} />
-            <primitive object={new THREE.AxesHelper(10)} />
+            {/* <primitive object={new THREE.AxesHelper(10)} /> */}
             <ambientLight intensity={0.175} />
             <spotLight position={[5, 10, 0]} intensity={0.3} penumbra={1} />
             <spotLight position={[10, 10, 0]} intensity={0.3} penumbra={1} />
